@@ -8,5 +8,33 @@ angular.module('itunes').service('itunesService', function($http, $q){
   //You can return the http request or you can make your own promise in order to manipulate the data before you resolve it.
 
     //Code here
+    this.getArtistData = function(artist) {
+
+        var deferred = $q.defer();
+
+        // $http.jsonp('https://itunes.apple.com/search?term=' + artist + '&callback=JSON_CALLBACK')
+        $http({
+            method: 'JSONP',
+            url: 'https://itunes.apple.com/search?term=' + artist + '&callback=JSON_CALLBACK'
+        })
+            .then(function(response) {
+            var parsedData = [];
+            var parsedResponse = response.data.results;
+            for(var i = 0; i < parsedResponse.Length; i++) {
+                // parsedResponse[i].artistName = '';
+                parsedData.push({
+                    Artist: parsedResponse[i].artistName,
+                    Collection: parsedResponse[i].collectionName,
+                    AlbumArt: parsedResponse[i].artworkUrl30,
+                    Type: parsedResponse[i].primaryGenreName,
+                    CollectionPrice: parsedResponse[i].collectionPrice
+                });
+
+            }
+            deferred.resolve(parsedData);
+        });
+
+        return deferred.promise;
+    };
     
 });
